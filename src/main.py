@@ -2,7 +2,7 @@ import os
 import sys
 import time
 from audioplayer import AudioPlayer
-from pynput.keyboard import Controller
+from pynput.keyboard import Controller, Listener as KeyboardListener, Key
 from PyQt5.QtCore import QObject, QProcess
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QAction, QMessageBox
@@ -78,6 +78,7 @@ class WhisperWriterApp(QObject):
         self.result_thread = None
         self._last_transcription_time = 0  # Cooldown tracking
         self._processing_transcription = False  # Flag to block activations during processing
+        self._any_key_listener = None  # Listener to stop recording on any key press
 
         self.main_window = MainWindow()
         self.main_window.openSettings.connect(self.settings_window.show)
@@ -212,6 +213,9 @@ class WhisperWriterApp(QObject):
         self.result_thread.resultSignal.connect(self.on_transcription_complete)
         self.result_thread.start()
 
+        # Start listening for any key to stop recording
+        self._start_any_key_listener()
+
     def stop_result_thread(self):
         """
         Stop the result thread.
@@ -219,12 +223,41 @@ class WhisperWriterApp(QObject):
         if self.result_thread and self.result_thread.isRunning():
             self.result_thread.stop()
 
+    def _start_any_key_listener(self):
+        """Start listening for any key press to stop recording."""
+        if self._any_key_listener:
+            return
+
+        def on_any_key_press(key):
+            # Ignore modifier keys (Ctrl, Shift, Alt, etc.)
+            if key in (Key.ctrl_l, Key.ctrl_r, Key.shift_l, Key.shift_r,
+                       Key.alt_l, Key.alt_r, Key.cmd_l, Key.cmd_r):
+                return True  # Don't suppress modifier keys
+            print(f">>> Any key pressed: {key} - stopping recording (key suppressed)")
+            self._stop_any_key_listener()
+            if self.result_thread and self.result_thread.isRunning():
+                self.result_thread.stop_recording()
+            return False  # Suppress the key - don't send it to the system
+
+        # suppress=True allows us to block keys from reaching other apps
+        self._any_key_listener = KeyboardListener(on_press=on_any_key_press, suppress=True)
+        self._any_key_listener.start()
+
+    def _stop_any_key_listener(self):
+        """Stop the any key listener."""
+        if self._any_key_listener:
+            self._any_key_listener.stop()
+            self._any_key_listener = None
+
     def on_transcription_complete(self, result):
         """
         When the transcription is complete, type the result and start listening for the activation key again.
         """
         # Block any activations during processing
         self._processing_transcription = True
+
+        # Stop the any-key listener
+        self._stop_any_key_listener()
 
         # Stop key listener to prevent Ctrl+V from triggering hotkey
         self.key_listener.stop()
