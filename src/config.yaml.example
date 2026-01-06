@@ -1,0 +1,49 @@
+# WhisperType Configuration
+# Optimized for French technical dictation with English terms
+
+# Model settings
+model_options:
+  use_api: false
+
+  common:
+    language: fr
+    temperature: 0.0
+    initial_prompt: "Transcription technique en français. Termes anglais courants: API, Docker, Kubernetes, JSON, Python, JavaScript, TypeScript, React, Node.js, Git, GitHub, VSCode, npm, yarn, webpack, CSS, HTML, SQL, MongoDB, PostgreSQL, Redis, AWS, Azure, GCP, Linux, Ubuntu, Windows, macOS, HTTP, HTTPS, REST, GraphQL, WebSocket, OAuth, JWT, CI/CD, DevOps, Terraform, Ansible."
+
+  local:
+    model: large-v3
+    device: auto
+    compute_type: float16
+    condition_on_previous_text: true
+    vad_filter: true
+    model_path: null
+
+# Recording settings
+recording_options:
+  activation_key: alt+space
+  input_backend: pynput
+  recording_mode: press_to_toggle
+  sound_device: null
+  sample_rate: 16000
+  silence_duration: 900
+  min_duration: 100
+
+# Post-processing
+post_processing:
+  writing_key_press_delay: 0.005
+  remove_trailing_period: false
+  add_trailing_space: true
+  remove_capitalization: false
+  input_method: pynput
+
+# Output settings
+output:
+  copy_to_clipboard: true
+  auto_type: false
+
+# Miscellaneous
+misc:
+  print_to_terminal: true
+  hide_status_window: true
+  noise_on_completion: true
+  noise_on_start: true
