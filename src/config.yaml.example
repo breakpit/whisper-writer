@@ -11,7 +11,7 @@ model_options:
     initial_prompt: "Transcription technique en français. Termes anglais courants: API, Docker, Kubernetes, JSON, Python, JavaScript, TypeScript, React, Node.js, Git, GitHub, VSCode, npm, yarn, webpack, CSS, HTML, SQL, MongoDB, PostgreSQL, Redis, AWS, Azure, GCP, Linux, Ubuntu, Windows, macOS, HTTP, HTTPS, REST, GraphQL, WebSocket, OAuth, JWT, CI/CD, DevOps, Terraform, Ansible."
 
   local:
-    model: large-v3
+    model: medium
     device: auto
     compute_type: float16
     condition_on_previous_text: true
@@ -20,7 +20,7 @@ model_options:
 
 # Recording settings
 recording_options:
-  activation_key: alt+space
+  activation_key: ctrl+space
   input_backend: pynput
   recording_mode: press_to_toggle
   sound_device: null
@@ -38,8 +38,8 @@ post_processing:
 
 # Output settings
 output:
-  copy_to_clipboard: true
-  auto_type: false
+  copy_to_clipboard: false
+  auto_type: true
 
 # Miscellaneous
 misc:

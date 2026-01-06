@@ -7,9 +7,9 @@ Fork simplifié de [whisper-writer](https://github.com/savbell/whisper-writer).
 ## Fonctionnalités
 
 - **100% Local** - Aucune API cloud, aucun coût de tokens, confidentialité totale
-- **Hotkey Global** - `Alt+Space` pour démarrer/arrêter l'enregistrement (configurable)
+- **Hotkey Global** - `Ctrl+Space` pour démarrer/arrêter l'enregistrement (configurable)
 - **Feedback Audio** - Sons distincts pour début et fin d'enregistrement
-- **Copie Automatique** - Texte transcrit copié dans le presse-papiers
+- **Frappe Automatique** - Le texte s'écrit directement où se trouve le curseur
 - **Interface Minimale** - Icône systray uniquement, pas de fenêtre intrusive
 - **Français Technique** - Optimisé pour le mélange français/anglais (API, Docker, Kubernetes, etc.)
 
@@ -43,11 +43,11 @@ L'icône WhisperType apparaît dans la barre système.
 
 ### Dictée
 
-1. Appuyez sur `Alt+Space` - Son de début
-2. Dictez votre texte
-3. Appuyez sur `Alt+Space` - Son de fin + transcription
-4. Le texte est copié dans le presse-papiers
-5. Collez avec `Ctrl+V`
+1. Placez votre curseur où vous voulez écrire
+2. Appuyez sur `Ctrl+Space` - Son de début
+3. Dictez votre texte
+4. Appuyez sur `Ctrl+Space` - Son de fin + transcription
+5. Le texte s'écrit automatiquement à la position du curseur
 
 ### Menu Systray
 
@@ -62,18 +62,18 @@ L'icône WhisperType apparaît dans la barre système.
 ```yaml
 # Raccourci clavier
 recording_options:
-  activation_key: alt+space  # Changez pour ctrl+shift+space, etc.
+  activation_key: ctrl+space  # Changez pour alt+space, ctrl+shift+space, etc.
 
 # Modèle Whisper
 model_options:
   local:
-    model: large-v3  # ou medium, small, base, tiny
+    model: medium  # ou large-v3, small, base, tiny
     device: auto     # cuda, cpu, ou auto
 
 # Sortie
 output:
-  copy_to_clipboard: true   # Copie automatique
-  auto_type: false          # Frappe automatique (désactivé par défaut)
+  copy_to_clipboard: false  # Copie dans presse-papiers
+  auto_type: true           # Frappe automatique (activé par défaut)
 
 # Sons
 misc:
@@ -99,7 +99,7 @@ Pour le français technique avec termes anglais, `large-v3` ou `medium` sont rec
 Vérifiez que `assets/start.wav` et `assets/beep.wav` existent.
 
 ### Hotkey ne fonctionne pas
-- Vérifiez qu'aucune autre application n'utilise `Alt+Space`
+- Vérifiez qu'aucune autre application n'utilise `Ctrl+Space`
 - Essayez un autre raccourci dans `config.yaml`
 
 ### Transcription lente
