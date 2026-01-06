@@ -390,6 +390,10 @@ class KeyListener:
 
         key, event_type = event
 
+        # Ignore unknown keys (None)
+        if key is None:
+            return
+
         was_active = self.key_chord.is_active()
         is_active = self.key_chord.update(key, event_type)
 
@@ -788,10 +792,10 @@ class PynputBackend(InputBackend):
             self.mouse_listener.stop()
             self.mouse_listener = None
 
-    def _translate_key_event(self, native_event) -> tuple[KeyCode, InputEvent]:
+    def _translate_key_event(self, native_event) -> tuple[KeyCode | None, InputEvent]:
         """Translate a pynput event to our internal event representation."""
         pynput_key, is_press = native_event
-        key_code = self.key_map.get(pynput_key, KeyCode.SPACE)
+        key_code = self.key_map.get(pynput_key)  # Returns None if key not found
         event_type = InputEvent.KEY_PRESS if is_press else InputEvent.KEY_RELEASE
         return key_code, event_type
 
