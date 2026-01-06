@@ -60,7 +60,10 @@ def transcribe_local(audio_data, local_model=None):
                                       initial_prompt=model_options['common']['initial_prompt'],
                                       condition_on_previous_text=model_options['local']['condition_on_previous_text'],
                                       temperature=model_options['common']['temperature'],
-                                      vad_filter=model_options['local']['vad_filter'],)
+                                      vad_filter=model_options['local']['vad_filter'],
+                                      hallucination_silence_threshold=0.5,  # Skip silent sections to prevent hallucinations
+                                      no_speech_threshold=0.5,  # More aggressive no-speech detection
+                                      repetition_penalty=1.1,)  # Penalize repetitive output
     return ''.join([segment.text for segment in list(response[0])])
 
 def transcribe_api(audio_data):
