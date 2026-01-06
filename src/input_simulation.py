@@ -2,7 +2,8 @@ import subprocess
 import os
 import signal
 import time
-from pynput.keyboard import Controller as PynputController
+import pyperclip
+from pynput.keyboard import Controller as PynputController, Key
 
 from utils import ConfigManager
 
@@ -59,12 +60,47 @@ class InputSimulator:
             text (str): The text to type.
         """
         interval = ConfigManager.get_config_value('post_processing', 'writing_key_press_delay')
-        if self.input_method == 'pynput':
+        if self.input_method == 'clipboard':
+            self._typewrite_clipboard(text)
+        elif self.input_method == 'pynput':
             self._typewrite_pynput(text, interval)
         elif self.input_method == 'ydotool':
             self._typewrite_ydotool(text, interval)
         elif self.input_method == 'dotool':
             self._typewrite_dotool(text, interval)
+
+    def _typewrite_clipboard(self, text):
+        """
+        Simulate typing using clipboard paste (Ctrl+V).
+        Most reliable method for special characters and accents.
+
+        Args:
+            text (str): The text to type.
+        """
+        # Save current clipboard content
+        try:
+            old_clipboard = pyperclip.paste()
+        except:
+            old_clipboard = None
+
+        # Copy text to clipboard and paste
+        pyperclip.copy(text)
+        time.sleep(0.05)  # Small delay to ensure clipboard is ready
+
+        keyboard = PynputController()
+        keyboard.press(Key.ctrl)
+        keyboard.press('v')
+        keyboard.release('v')
+        keyboard.release(Key.ctrl)
+
+        time.sleep(0.1)  # Wait for paste to complete
+
+        # Restore old clipboard content
+        if old_clipboard is not None:
+            try:
+                pyperclip.copy(old_clipboard)
+            except:
+                pass
 
     def _typewrite_pynput(self, text, interval):
         """

@@ -180,3 +180,7 @@ misc:
     value: true
     type: bool
     description: "Set to true to play a noise when recording starts."
+  start_with_windows:
+    value: true
+    type: bool
+    description: "Set to true to start WhisperWriter automatically when Windows starts."
