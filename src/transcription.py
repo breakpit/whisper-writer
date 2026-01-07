@@ -58,6 +58,7 @@ def transcribe_local(audio_data, local_model=None):
     response = local_model.transcribe(audio=audio_data_float,
                                       language=model_options['common']['language'],
                                       initial_prompt=model_options['common']['initial_prompt'],
+                                      hotwords=model_options['common'].get('hotwords'),
                                       condition_on_previous_text=model_options['local']['condition_on_previous_text'],
                                       temperature=model_options['common']['temperature'],
                                       vad_filter=model_options['local']['vad_filter'],
