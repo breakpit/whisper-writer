@@ -188,6 +188,10 @@ class WhisperWriterApp(QObject):
         if ConfigManager.get_config_value('recording_options', 'recording_mode') == 'hold_to_record':
             if self.result_thread and self.result_thread.isRunning():
                 self.result_thread.stop_recording()
+        else:
+            # Start any-key listener now that hotkey is released
+            if self.result_thread and self.result_thread.isRunning():
+                self._start_any_key_listener()
 
     def start_result_thread(self):
         """
@@ -213,8 +217,6 @@ class WhisperWriterApp(QObject):
         self.result_thread.resultSignal.connect(self.on_transcription_complete)
         self.result_thread.start()
 
-        # Start listening for any key to stop recording
-        self._start_any_key_listener()
 
     def stop_result_thread(self):
         """
@@ -239,8 +241,16 @@ class WhisperWriterApp(QObject):
                 self.result_thread.stop_recording()
             return False  # Suppress the key - don't send it to the system
 
+        def on_any_key_release(key):
+            # Always allow key releases to pass through
+            return True
+
         # suppress=True allows us to block keys from reaching other apps
-        self._any_key_listener = KeyboardListener(on_press=on_any_key_press, suppress=True)
+        self._any_key_listener = KeyboardListener(
+            on_press=on_any_key_press,
+            on_release=on_any_key_release,
+            suppress=True
+        )
         self._any_key_listener.start()
 
     def _stop_any_key_listener(self):
