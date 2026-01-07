@@ -117,6 +117,10 @@ class ResultThread(QThread):
         silence_duration_ms = recording_options.get('silence_duration') or 900
         silence_frames = int(silence_duration_ms / frame_duration_ms)
 
+        # Maximum recording duration (safety timeout)
+        max_duration_seconds = recording_options.get('max_duration') or 80
+        max_frames = int(max_duration_seconds * self.sample_rate / frame_size)
+
         # 150ms delay before starting VAD to avoid mistaking the sound of key pressing for voice
         initial_frames_to_skip = int(0.15 * self.sample_rate / frame_size)
 
@@ -130,6 +134,7 @@ class ResultThread(QThread):
 
         audio_buffer = deque(maxlen=frame_size)
         recording = []
+        total_frames_recorded = 0
 
         data_ready = Event()
 
@@ -153,6 +158,12 @@ class ResultThread(QThread):
                 frame = np.array(list(audio_buffer), dtype=np.int16)
                 audio_buffer.clear()
                 recording.extend(frame)
+                total_frames_recorded += 1
+
+                # Check for maximum duration timeout
+                if total_frames_recorded >= max_frames:
+                    ConfigManager.console_print(f"Maximum recording duration ({max_duration_seconds}s) reached. Stopping.")
+                    break
 
                 # Avoid trying to detect voice in initial frames
                 if initial_frames_to_skip > 0:

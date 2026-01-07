@@ -15,6 +15,7 @@ from ui.status_window import StatusWindow
 from transcription import create_local_model
 from input_simulation import InputSimulator
 from utils import ConfigManager
+from clipboard_manager import ClipboardManager
 
 
 def manage_windows_startup(enable):
@@ -65,6 +66,7 @@ class WhisperWriterApp(QObject):
         Initialize the components of the application.
         """
         self.input_simulator = InputSimulator()
+        self.clipboard_manager = ClipboardManager()
 
         self.key_listener = KeyListener()
         self.key_listener.add_callback("on_activate", self.on_activation)
@@ -288,11 +290,16 @@ class WhisperWriterApp(QObject):
 
         if copy_to_clipboard:
             try:
-                import pyperclip
                 from pynput.keyboard import Controller, Key
                 import time
 
-                pyperclip.copy(result)
+                # Save current clipboard contents before overwriting
+                clipboard_saved = self.clipboard_manager.save()
+                if clipboard_saved:
+                    print(f"Clipboard saved: {self.clipboard_manager.get_format_names()}")
+
+                # Set transcription to clipboard and paste
+                self.clipboard_manager.set_text(result)
                 print(f"Copied to clipboard: {result}")
 
                 # Auto-paste with Ctrl+V
@@ -305,6 +312,13 @@ class WhisperWriterApp(QObject):
                 keyboard.release(Key.ctrl)
                 time.sleep(0.1)
                 print("Auto-pasted with Ctrl+V")
+
+                # Restore original clipboard contents
+                if clipboard_saved:
+                    time.sleep(0.1)  # Small delay to ensure paste is complete
+                    self.clipboard_manager.restore()
+                    print("Original clipboard restored")
+
             except Exception as e:
                 print(f"Error copying/pasting: {e}")
 

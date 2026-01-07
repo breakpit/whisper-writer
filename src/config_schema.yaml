@@ -127,6 +127,10 @@ recording_options:
     value: 100
     type: int
     description: "The minimum duration in milliseconds for a recording to be processed. Recordings shorter than this will be discarded."
+  max_duration:
+    value: 80
+    type: int
+    description: "The maximum duration in seconds for a recording. Recording will automatically stop after this time as a safety measure."
 
 # Post-processing options for the transcribed text
 post_processing:
